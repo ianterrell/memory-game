@@ -70,10 +70,6 @@ final class LobbyScene: SKScene {
         positionNodes()
     }
     
-    override func update(_ currentTime: TimeInterval) {
-        
-    }
-    
     override func didChangeSize(_ oldSize: CGSize) {
         positionNodes()
     }

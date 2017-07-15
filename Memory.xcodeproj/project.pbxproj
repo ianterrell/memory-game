@@ -8,7 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		D92FE9671F1A975600151D06 /* SelectableNode.swift in Sources */ = {isa = PBXBuildFile; fileRef = D92FE9661F1A975600151D06 /* SelectableNode.swift */; };
-		D988C8DE1F1A7AFF00BCACE3 /* Grid.swift in Sources */ = {isa = PBXBuildFile; fileRef = D988C8DD1F1A7AFF00BCACE3 /* Grid.swift */; };
+		D988C8DE1F1A7AFF00BCACE3 /* Models.swift in Sources */ = {isa = PBXBuildFile; fileRef = D988C8DD1F1A7AFF00BCACE3 /* Models.swift */; };
 		D988C8E21F1A7CED00BCACE3 /* LobbyScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D988C8E11F1A7CED00BCACE3 /* LobbyScene.swift */; };
 		D9AB1E201F1A4F7900CE9F2A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9AB1E1F1F1A4F7900CE9F2A /* AppDelegate.swift */; };
 		D9AB1E261F1A4F7900CE9F2A /* GameScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = D9AB1E251F1A4F7900CE9F2A /* GameScene.swift */; };
@@ -39,7 +39,7 @@
 
 /* Begin PBXFileReference section */
 		D92FE9661F1A975600151D06 /* SelectableNode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SelectableNode.swift; sourceTree = "<group>"; };
-		D988C8DD1F1A7AFF00BCACE3 /* Grid.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Grid.swift; sourceTree = "<group>"; };
+		D988C8DD1F1A7AFF00BCACE3 /* Models.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Models.swift; sourceTree = "<group>"; };
 		D988C8E11F1A7CED00BCACE3 /* LobbyScene.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LobbyScene.swift; sourceTree = "<group>"; };
 		D9AB1E1C1F1A4F7900CE9F2A /* Memory.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Memory.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9AB1E1F1F1A4F7900CE9F2A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -106,7 +106,7 @@
 			isa = PBXGroup;
 			children = (
 				D9AB1E1F1F1A4F7900CE9F2A /* AppDelegate.swift */,
-				D988C8DD1F1A7AFF00BCACE3 /* Grid.swift */,
+				D988C8DD1F1A7AFF00BCACE3 /* Models.swift */,
 				D92FE9661F1A975600151D06 /* SelectableNode.swift */,
 				D988C8E11F1A7CED00BCACE3 /* LobbyScene.swift */,
 				D9AB1E251F1A4F7900CE9F2A /* GameScene.swift */,
@@ -275,7 +275,7 @@
 				D9AB1E281F1A4F7900CE9F2A /* GameViewController.swift in Sources */,
 				D988C8E21F1A7CED00BCACE3 /* LobbyScene.swift in Sources */,
 				D92FE9671F1A975600151D06 /* SelectableNode.swift in Sources */,
-				D988C8DE1F1A7AFF00BCACE3 /* Grid.swift in Sources */,
+				D988C8DE1F1A7AFF00BCACE3 /* Models.swift in Sources */,
 				D9AB1E201F1A4F7900CE9F2A /* AppDelegate.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

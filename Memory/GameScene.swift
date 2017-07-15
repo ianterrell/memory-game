@@ -22,15 +22,19 @@ protocol GameDelegate: class {
     func goBack()
 }
 
-final class GameScene: SKScene {
+final class GameScene: SKScene, GridDelegate {
     let grid: Grid
+    var game: Game
     weak var gameDelegate: GameDelegate?
     
     let backButton: SKNode
     let gridNode: GridNode
+
+    var firstSelected: (index: Int, node: CardNode)?
     
     init(grid: Grid, gameDelegate: GameDelegate) {
         self.grid = grid
+        self.game = Game(grid: grid)
         self.gameDelegate = gameDelegate
         
         let backButtonSprite = SKSpriteNode(imageNamed: "backButton")
@@ -42,7 +46,8 @@ final class GameScene: SKScene {
         gridNode = GridNode(grid: grid, size: .zero)
         
         super.init(size: .zero)
-        
+
+        gridNode.delegate = self
         scaleMode = .resizeFill
         backgroundColor = .white
     }
@@ -56,9 +61,30 @@ final class GameScene: SKScene {
         addChild(gridNode)
         positionNodes()
     }
-    
-    override func update(_ currentTime: TimeInterval) {
-        
+
+    func selectCard(at index: Int, node: CardNode) {
+        guard !node.isShowing else {
+            return
+        }
+
+        node.flip(to: game.card(at: index))
+
+        guard let firstSelected = firstSelected else {
+            self.firstSelected = (index: index, node: node)
+            return
+        }
+
+        self.firstSelected = nil
+
+        let isMatch = game.select(first: firstSelected.index, second: index)
+        if !isMatch {
+            let wait = SKAction.wait(forDuration: 1)
+            let flip = SKAction.run {
+                firstSelected.node.flipToBack()
+                node.flipToBack()
+            }
+            run(SKAction.sequence([wait, flip]))
+        }
     }
     
     override func didChangeSize(_ oldSize: CGSize) {
@@ -93,16 +119,20 @@ final class GameScene: SKScene {
     }
 }
 
+protocol GridDelegate: class {
+    func selectCard(at index: Int, node: CardNode)
+}
+
 final class GridNode: SKNode {
     static let referenceCard = SKSpriteNode(imageNamed: .cardBack)
     
     let grid: Grid
     let cards: SKNode
+    weak var delegate: GridDelegate?
     
     var size: CGSize {
         didSet {
-            xScale = grid.scale(withCardSize: GridNode.referenceCard.size, padding: .gridPadding, fitting: size)
-            yScale = xScale
+            setScale(grid.scale(withCardSize: GridNode.referenceCard.size, padding: .gridPadding, fitting: size))
         }
     }
     
@@ -115,11 +145,15 @@ final class GridNode: SKNode {
         
         for row in 0..<grid.rows {
             for column in 0..<grid.columns {
-                let card = SKSpriteNode(imageNamed: .cardBack)
+                let card = CardNode()
                 card.anchorPoint = .zero
                 card.position = CGPoint(x: .gridPadding + CGFloat(column) * (card.size.width + .gridPadding),
                                         y: .gridPadding + CGFloat(row) * (card.size.height + .gridPadding))
-                cards.addChild(card)
+                let index = row * grid.columns + column
+                let selectable = SelectableNode(wrapping: card) { [unowned self] in
+                    self.delegate?.selectCard(at: index, node: card)
+                }
+                cards.addChild(selectable)
             }
         }
         
@@ -130,5 +164,51 @@ final class GridNode: SKNode {
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+final class CardNode: SKSpriteNode {
+    var isShowing = false
+    let cardBackTexture = SKTexture(imageNamed: .cardBack)
+
+    init() {
+        super.init(texture: cardBackTexture, color: .clear, size: cardBackTexture.size())
+    }
+
+    func flip(to card: Card) {
+        texture = SKTexture(card: card)
+        isShowing = true
+    }
+
+    func flipToBack() {
+        texture = cardBackTexture
+        isShowing = false
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+}
+
+extension SKTexture {
+    convenience init(card: Card) {
+        self.init(imageNamed: SKTexture.imageName(for: card))
+    }
+
+    static func imageName(for card: Card) -> String {
+        switch card {
+        case 0: return "cardCow"
+        case 1: return "cardHen"
+        case 2: return "cardHorse"
+        case 3: return "cardPig"
+        case 4: return "cardBat"
+        case 5: return "cardCat"
+        case 6: return "cardGhostDog"
+        case 7: return "cardSpider"
+        case 8: return "cardUnicorn"
+        case 9: return "cardUnicow"
+        default:
+            fatalError("No asset defined for card \(card)")
+        }
     }
 }
