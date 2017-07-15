@@ -12,6 +12,10 @@ struct Grid {
     let rows: Int
     let columns: Int
     
+    var title: String {
+        return "\(rows)x\(columns)"
+    }
+    
     func size(withCardSize cardSize: CGSize, padding: CGFloat) -> CGSize {
         return CGSize(
             width: CGFloat(columns) * (cardSize.width + padding) + padding,

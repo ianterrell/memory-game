@@ -33,6 +33,9 @@ class GameScene: SKScene {
         gridNode = GridNode(grid: grid, size: .zero)
         
         super.init(size: size)
+        
+        scaleMode = .resizeFill
+        backgroundColor = .white
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -40,8 +43,6 @@ class GameScene: SKScene {
     }
     
     override func sceneDidLoad() {
-        backgroundColor = .white
-        
         addChild(backButton)
         addChild(gridNode)
         positionNodes()

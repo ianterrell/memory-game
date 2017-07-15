@@ -19,13 +19,10 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-//        let grid = Grid(rows: 3, columns: 4)
-        let grid = Grid(rows: 5, columns: 2)
-//        let grid = Grid(rows: 4, columns: 4)
-//        let grid = Grid(rows: 4, columns: 5)
+        let dimensions = [[3,4],[5,2],[4,4],[4,5]]
+        let options = dimensions.map { Grid(rows: $0[0], columns: $0[1]) }
+        let scene = LobbyScene(options: options, size: skView.frame.size)
         
-        let scene = GameScene(grid: grid, size: skView.frame.size)
-        scene.scaleMode = .resizeFill
         skView.presentScene(scene)
         #if DEBUG
             skView.showsFPS = true
