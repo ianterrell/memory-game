@@ -9,24 +9,29 @@
 import SpriteKit
 import GameplayKit
 
+private extension String {
+    static var cardBack = "cardBack"
+}
+
 private extension CGFloat {
     static var backButtonOffset: CGFloat = 5
     static var gridPadding: CGFloat = 20
 }
 
 class GameScene: SKScene {
+    let grid: Grid
     
     let backButton: SKSpriteNode
-    let grid: GridNode
+    let gridNode: GridNode
     
-    override init(size: CGSize) {
+    init(grid: Grid, size: CGSize) {
+        self.grid = grid
+        
         backButton = SKSpriteNode(imageNamed: "backButton")
         backButton.anchorPoint = .zero
         
-//        grid = GridNode(grid: Grid(rows: 3, columns: 4), size: .zero)
-//        grid = GridNode(grid: Grid(rows: 5, columns: 2), size: .zero)
-        grid = GridNode(grid: Grid(rows: 4, columns: 4), size: .zero)
-//        grid = GridNode(grid: Grid(rows: 4, columns: 5), size: .zero)
+        gridNode = GridNode(grid: grid, size: .zero)
+        
         super.init(size: size)
     }
     
@@ -38,7 +43,7 @@ class GameScene: SKScene {
         backgroundColor = .white
         
         addChild(backButton)
-        addChild(grid)
+        addChild(gridNode)
         positionNodes()
     }
     
@@ -51,14 +56,32 @@ class GameScene: SKScene {
     }
     
     func positionNodes() {
-        let backButtonVerticalSpace = backButton.size.height + .backButtonOffset
+        let backButtonSize = CGSize(width: backButton.size.width + .backButtonOffset,
+                                    height: backButton.size.height + .backButtonOffset)
         
         // Back button at top left
-        backButton.position = CGPoint(x: .backButtonOffset, y: size.height - backButtonVerticalSpace)
+        backButton.position = CGPoint(x: .backButtonOffset, y: size.height - backButtonSize.height)
         
-        // Grid occupying center, adding top padding for node and equivalent bottom padding
-        grid.position = CGPoint(x: size.width/2, y: size.height/2)
-        grid.size = CGSize(width: size.width, height: size.height - 2*backButtonVerticalSpace)
+        // Grid occupying center
+        gridNode.position = CGPoint(x: size.width/2, y: size.height/2)
+        
+        var gridHeight = size.height
+        if fullScreenWouldIntersectBackButton(with: backButton.size) {
+            gridHeight -= 2*backButtonSize.height
+        }
+        gridNode.size = CGSize(width: size.width, height: gridHeight)
+    }
+    
+    func fullScreenWouldIntersectBackButton(with backButtonSize: CGSize) -> Bool {
+        let gridSize = grid.size(withCardSize: GridNode.referenceCard.size)
+        let gridScale = grid.scale(withCardSize: GridNode.referenceCard.size, fitting: size)
+        let fullScreenSize = CGSize(width: gridSize.width * gridScale, height: gridSize.height * gridScale)
+        
+        let gridRect = CGRect(origin: CGPoint(x: size.width/2 - fullScreenSize.width/2,
+                                              y: size.height/2-fullScreenSize.height/2),
+                              size: fullScreenSize)
+        let backButtonRect = CGRect(origin: CGPoint(x: 0, y: size.height - backButtonSize.height), size: backButtonSize)
+        return gridRect.intersects(backButtonRect)
     }
 }
 
@@ -72,18 +95,22 @@ struct Grid {
             height: CGFloat(rows) * (cardSize.height + .gridPadding) + .gridPadding
         )
     }
+    
+    func scale(withCardSize cardSize: CGSize, fitting frameSize: CGSize) -> CGFloat {
+        let gridSize = size(withCardSize: cardSize)
+        return min(min(frameSize.width/gridSize.width, 1), min(frameSize.height/gridSize.height, 1))
+    }
 }
 
 final class GridNode: SKNode {
-    static let referenceCard = SKSpriteNode(imageNamed: "cardBack")
+    static let referenceCard = SKSpriteNode(imageNamed: .cardBack)
     
     let grid: Grid
     let cards: SKNode
     
     var size: CGSize {
         didSet {
-            let gridSize = grid.size(withCardSize: GridNode.referenceCard.size)
-            xScale = min(min(size.width/gridSize.width, 1), min(size.height/gridSize.height, 1))
+            xScale = grid.scale(withCardSize: GridNode.referenceCard.size, fitting: size)
             yScale = xScale
         }
     }
@@ -97,9 +124,10 @@ final class GridNode: SKNode {
         
         for row in 0..<grid.rows {
             for column in 0..<grid.columns {
-                let card = SKSpriteNode(imageNamed: "cardBack")
+                let card = SKSpriteNode(imageNamed: .cardBack)
                 card.anchorPoint = .zero
-                card.position = CGPoint(x: .gridPadding + CGFloat(column) * (card.size.width + .gridPadding), y: .gridPadding + CGFloat(row) * (card.size.height + .gridPadding))
+                card.position = CGPoint(x: .gridPadding + CGFloat(column) * (card.size.width + .gridPadding),
+                                        y: .gridPadding + CGFloat(row) * (card.size.height + .gridPadding))
                 cards.addChild(card)
             }
         }

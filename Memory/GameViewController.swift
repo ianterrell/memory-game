@@ -19,7 +19,12 @@ class GameViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let scene = GameScene(size: skView.frame.size)
+//        let grid = Grid(rows: 3, columns: 4)
+        let grid = Grid(rows: 5, columns: 2)
+//        let grid = Grid(rows: 4, columns: 4)
+//        let grid = Grid(rows: 4, columns: 5)
+        
+        let scene = GameScene(grid: grid, size: skView.frame.size)
         scene.scaleMode = .resizeFill
         skView.presentScene(scene)
         #if DEBUG
