@@ -73,32 +73,12 @@ class GameScene: SKScene {
     }
     
     func fullScreenWouldIntersectBackButton(with backButtonSize: CGSize) -> Bool {
-        let gridSize = grid.size(withCardSize: GridNode.referenceCard.size)
-        let gridScale = grid.scale(withCardSize: GridNode.referenceCard.size, fitting: size)
-        let fullScreenSize = CGSize(width: gridSize.width * gridScale, height: gridSize.height * gridScale)
-        
+        let fullScreenSize = grid.size(withCardSize: GridNode.referenceCard.size, padding: .gridPadding, fitting: size)
         let gridRect = CGRect(origin: CGPoint(x: size.width/2 - fullScreenSize.width/2,
-                                              y: size.height/2-fullScreenSize.height/2),
+                                              y: size.height/2 - fullScreenSize.height/2),
                               size: fullScreenSize)
         let backButtonRect = CGRect(origin: CGPoint(x: 0, y: size.height - backButtonSize.height), size: backButtonSize)
         return gridRect.intersects(backButtonRect)
-    }
-}
-
-struct Grid {
-    let rows: Int
-    let columns: Int
-    
-    func size(withCardSize cardSize: CGSize) -> CGSize {
-        return CGSize(
-            width: CGFloat(columns) * (cardSize.width + .gridPadding) + .gridPadding,
-            height: CGFloat(rows) * (cardSize.height + .gridPadding) + .gridPadding
-        )
-    }
-    
-    func scale(withCardSize cardSize: CGSize, fitting frameSize: CGSize) -> CGFloat {
-        let gridSize = size(withCardSize: cardSize)
-        return min(min(frameSize.width/gridSize.width, 1), min(frameSize.height/gridSize.height, 1))
     }
 }
 
@@ -110,7 +90,7 @@ final class GridNode: SKNode {
     
     var size: CGSize {
         didSet {
-            xScale = grid.scale(withCardSize: GridNode.referenceCard.size, fitting: size)
+            xScale = grid.scale(withCardSize: GridNode.referenceCard.size, padding: .gridPadding, fitting: size)
             yScale = xScale
         }
     }
@@ -132,7 +112,7 @@ final class GridNode: SKNode {
             }
         }
         
-        let gridSize = grid.size(withCardSize: GridNode.referenceCard.size)
+        let gridSize = grid.size(withCardSize: GridNode.referenceCard.size, padding: .gridPadding)
         cards.position = CGPoint(x: -gridSize.width/2, y: -gridSize.height/2)
         self.addChild(cards)
     }
