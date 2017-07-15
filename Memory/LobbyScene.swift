@@ -18,22 +18,28 @@ private extension UIFont {
     static let optionFont = systemFont(ofSize: 24)
 }
 
-class LobbyScene: SKScene {
+protocol LobbyDelegate: class {
+    func selected(grid: Grid)
+}
+
+final class LobbyScene: SKScene {
     
     let options: [Grid]
+    weak var lobbyDelegate: LobbyDelegate?
     
     let menuNode: SKNode
     let titleNode: SKLabelNode
     let optionsNode: SKNode
     
-    init(options: [Grid], size: CGSize) {
+    init(options: [Grid], lobbyDelegate: LobbyDelegate) {
         self.options = options
+        self.lobbyDelegate = lobbyDelegate
         
         self.menuNode = SKNode()
         self.titleNode = SKLabelNode(text: "Memory Game")
         self.optionsNode = SKNode()
         
-        super.init(size: size)
+        super.init(size: .zero)
         
         scaleMode = .resizeFill
         backgroundColor = .white
@@ -49,8 +55,11 @@ class LobbyScene: SKScene {
         menuNode.addChild(titleNode)
 
         for (i, option) in zip(options.indices,options) {
-            let optionNode = SKLabelNode(text: option.title)
-            style(node: optionNode, with: .optionFont)
+            let labelNode = SKLabelNode(text: option.title)
+            let optionNode = SelectableNode(wrapping: labelNode) { [weak lobbyDelegate] in
+                lobbyDelegate?.selected(grid: option)
+            }
+            style(node: labelNode, with: .optionFont)
             optionNode.position = CGPoint(x: 0, y: -CGFloat(i) * .optionSpacing)
             optionsNode.addChild(optionNode)
         }

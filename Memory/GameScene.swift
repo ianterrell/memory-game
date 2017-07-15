@@ -18,21 +18,30 @@ private extension CGFloat {
     static var gridPadding: CGFloat = 20
 }
 
-class GameScene: SKScene {
+protocol GameDelegate: class {
+    func goBack()
+}
+
+final class GameScene: SKScene {
     let grid: Grid
+    weak var gameDelegate: GameDelegate?
     
-    let backButton: SKSpriteNode
+    let backButton: SKNode
     let gridNode: GridNode
     
-    init(grid: Grid, size: CGSize) {
+    init(grid: Grid, gameDelegate: GameDelegate) {
         self.grid = grid
+        self.gameDelegate = gameDelegate
         
-        backButton = SKSpriteNode(imageNamed: "backButton")
-        backButton.anchorPoint = .zero
+        let backButtonSprite = SKSpriteNode(imageNamed: "backButton")
+        backButtonSprite.anchorPoint = .zero
+        backButton = SelectableNode(wrapping: backButtonSprite) { [weak gameDelegate] in
+            gameDelegate?.goBack()
+        }
         
         gridNode = GridNode(grid: grid, size: .zero)
         
-        super.init(size: size)
+        super.init(size: .zero)
         
         scaleMode = .resizeFill
         backgroundColor = .white
@@ -57,8 +66,9 @@ class GameScene: SKScene {
     }
     
     func positionNodes() {
-        let backButtonSize = CGSize(width: backButton.size.width + .backButtonOffset,
-                                    height: backButton.size.height + .backButtonOffset)
+        let backButtonSpriteSize = backButton.calculateAccumulatedFrame()
+        let backButtonSize = CGSize(width: backButtonSpriteSize.width + .backButtonOffset,
+                                    height: backButtonSpriteSize.height + .backButtonOffset)
         
         // Back button at top left
         backButton.position = CGPoint(x: .backButtonOffset, y: size.height - backButtonSize.height)
@@ -67,7 +77,7 @@ class GameScene: SKScene {
         gridNode.position = CGPoint(x: size.width/2, y: size.height/2)
         
         var gridHeight = size.height
-        if fullScreenWouldIntersectBackButton(with: backButton.size) {
+        if fullScreenWouldIntersectBackButton(with: backButtonSize) {
             gridHeight -= 2*backButtonSize.height
         }
         gridNode.size = CGSize(width: size.width, height: gridHeight)
@@ -121,5 +131,4 @@ final class GridNode: SKNode {
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
 }

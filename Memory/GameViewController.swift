@@ -10,20 +10,27 @@ import UIKit
 import SpriteKit
 import GameplayKit
 
-class GameViewController: UIViewController {
+private extension SKTransition {
+    static let presentGame = doorsOpenHorizontal(withDuration: 0.5)
+    static let hideGame = doorsCloseHorizontal(withDuration: 0.5)
+}
+
+final class GameViewController: UIViewController {
     
     var skView: SKView {
         return view as! SKView
     }
 
+    var lobby: SKScene!
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        
+
         let dimensions = [[3,4],[5,2],[4,4],[4,5]]
         let options = dimensions.map { Grid(rows: $0[0], columns: $0[1]) }
-        let scene = LobbyScene(options: options, size: skView.frame.size)
-        
-        skView.presentScene(scene)
+        lobby = LobbyScene(options: options, lobbyDelegate: self)
+
+        skView.presentScene(lobby)
         #if DEBUG
             skView.showsFPS = true
         #endif
@@ -48,5 +55,16 @@ class GameViewController: UIViewController {
 
     override var prefersStatusBarHidden: Bool {
         return true
+    }
+}
+
+extension GameViewController: LobbyDelegate, GameDelegate {
+    func selected(grid: Grid) {
+        let game = GameScene(grid: grid, gameDelegate: self)
+        skView.presentScene(game, transition: .presentGame)
+    }
+
+    func goBack() {
+        skView.presentScene(lobby, transition: .hideGame)
     }
 }
