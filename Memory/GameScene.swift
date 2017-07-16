@@ -62,7 +62,7 @@ final class GameScene: SKScene, GridDelegate {
 
         gridNode.delegate = self
         scaleMode = .resizeFill
-        backgroundColor = .white
+        backgroundColor = UIColor(white: 0.9, alpha: 1)
     }
     
     required init?(coder aDecoder: NSCoder) {
