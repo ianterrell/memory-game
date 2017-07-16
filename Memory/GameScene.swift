@@ -18,6 +18,10 @@ private extension CGFloat {
     static let cardTouchDownScale: CGFloat = 0.95
 }
 
+private extension TimeInterval {
+    static let flipDuration: TimeInterval = 0.2
+}
+
 protocol GameDelegate: class {
     func goBack()
 }
@@ -181,13 +185,20 @@ final class CardNode: SKSpriteNode {
     }
 
     func flip(to card: Card) {
-        texture = SKTexture(card: card)
+        flip(to: SKTexture(card: card))
         isShowing = true
     }
 
     func flipToBack() {
-        texture = CardNode.cardBackTexture
+        flip(to: CardNode.cardBackTexture)
         isShowing = false
+    }
+
+    private func flip(to texture: SKTexture) {
+        let scaleDown = SKAction.scaleX(to: 0, duration: .flipDuration / 2)
+        let flip = SKAction.run { self.texture = texture }
+        let scaleUp = SKAction.scaleX(to: 1, duration: .flipDuration / 2)
+        run(SKAction.sequence([scaleDown, flip, scaleUp]))
     }
     
     required init?(coder aDecoder: NSCoder) {
