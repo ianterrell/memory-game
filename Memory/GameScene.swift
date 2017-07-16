@@ -7,7 +7,6 @@
 //
 
 import SpriteKit
-import GameplayKit
 
 private extension String {
     static var cardBack = "cardBack"
@@ -110,7 +109,7 @@ final class GameScene: SKScene, GridDelegate {
     }
     
     func fullScreenWouldIntersectBackButton(with backButtonSize: CGSize) -> Bool {
-        let fullScreenSize = grid.size(withCardSize: GridNode.referenceCard.size, padding: .gridPadding, fitting: size)
+        let fullScreenSize = grid.size(withCardSize: CardNode.cardBackTexture.size(), padding: .gridPadding, fitting: size)
         let gridRect = CGRect(origin: CGPoint(x: size.width/2 - fullScreenSize.width/2,
                                               y: size.height/2 - fullScreenSize.height/2),
                               size: fullScreenSize)
@@ -124,15 +123,13 @@ protocol GridDelegate: class {
 }
 
 final class GridNode: SKNode {
-    static let referenceCard = SKSpriteNode(imageNamed: .cardBack)
-    
     let grid: Grid
     let cards: SKNode
     weak var delegate: GridDelegate?
     
     var size: CGSize {
         didSet {
-            setScale(grid.scale(withCardSize: GridNode.referenceCard.size, padding: .gridPadding, fitting: size))
+            setScale(grid.scale(withCardSize: CardNode.cardBackTexture.size(), padding: .gridPadding, fitting: size))
         }
     }
     
@@ -157,7 +154,7 @@ final class GridNode: SKNode {
             }
         }
         
-        let gridSize = grid.size(withCardSize: GridNode.referenceCard.size, padding: .gridPadding)
+        let gridSize = grid.size(withCardSize: CardNode.cardBackTexture.size(), padding: .gridPadding)
         cards.position = CGPoint(x: -gridSize.width/2, y: -gridSize.height/2)
         self.addChild(cards)
     }
@@ -169,10 +166,10 @@ final class GridNode: SKNode {
 
 final class CardNode: SKSpriteNode {
     var isShowing = false
-    let cardBackTexture = SKTexture(imageNamed: .cardBack)
+    static let cardBackTexture = SKTexture(imageNamed: .cardBack)
 
     init() {
-        super.init(texture: cardBackTexture, color: .clear, size: cardBackTexture.size())
+        super.init(texture: CardNode.cardBackTexture, color: .clear, size: CardNode.cardBackTexture.size())
     }
 
     func flip(to card: Card) {
@@ -181,7 +178,7 @@ final class CardNode: SKSpriteNode {
     }
 
     func flipToBack() {
-        texture = cardBackTexture
+        texture = CardNode.cardBackTexture
         isShowing = false
     }
     

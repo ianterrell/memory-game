@@ -8,7 +8,6 @@
 
 import UIKit
 import SpriteKit
-import GameplayKit
 
 private extension SKTransition {
     static let presentGame = doorsOpenHorizontal(withDuration: 0.5)
@@ -46,11 +45,6 @@ final class GameViewController: UIViewController {
         } else {
             return .all
         }
-    }
-
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Release any cached data, images, etc that aren't in use.
     }
 
     override var prefersStatusBarHidden: Bool {
