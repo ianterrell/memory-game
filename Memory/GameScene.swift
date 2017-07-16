@@ -15,11 +15,21 @@ private extension String {
 private extension CGFloat {
     static let backButtonOffset: CGFloat = 5
     static let gridPadding: CGFloat = 20
+    static let cardCornerRadius: CGFloat = 10
     static let cardTouchDownScale: CGFloat = 0.95
+    static let highlightStartAlpha: CGFloat = 0.6
+    static let highlightEndAlpha: CGFloat = 0.1
+    static let highlightScale: CGFloat = 1.1
 }
 
 private extension TimeInterval {
     static let flipDuration: TimeInterval = 0.2
+    static let highlightPulseDuration: TimeInterval = 1
+    static let hideHighlightDuration: TimeInterval = 0.2
+}
+
+private extension UIColor {
+    static let highlightColor = UIColor.cyan
 }
 
 protocol GameDelegate: class {
@@ -74,10 +84,12 @@ final class GameScene: SKScene, GridDelegate {
 
         guard let firstSelected = firstSelected else {
             self.firstSelected = (index: index, node: node)
+            node.isSelected = true
             return
         }
 
         self.firstSelected = nil
+        firstSelected.node.isSelected = false
 
         let isMatch = game.select(first: firstSelected.index, second: index)
         if !isMatch {
@@ -176,12 +188,36 @@ final class GridNode: SKNode {
     }
 }
 
-final class CardNode: SKSpriteNode {
+final class CardNode: SKNode {
     var isShowing = false
+
+    var highlightNode: SKNode?
+    let cardNode: SKSpriteNode
+
+    var isSelected = false {
+        didSet {
+            if isSelected {
+                let node = makeHighlightNode()
+                insertChild(node, at: 0)
+                highlightNode = node
+            } else {
+                if let highlightNode = highlightNode {
+                    highlightNode.run(.fadeOut(withDuration: .hideHighlightDuration)) {
+                        self.removeChildren(in: [highlightNode])
+                        self.highlightNode = nil
+                    }
+                }
+
+            }
+        }
+    }
+
     static let cardBackTexture = SKTexture(imageNamed: .cardBack)
 
-    init() {
-        super.init(texture: CardNode.cardBackTexture, color: .clear, size: CardNode.cardBackTexture.size())
+    override init() {
+        cardNode = SKSpriteNode(texture: CardNode.cardBackTexture, color: .clear, size: CardNode.cardBackTexture.size())
+        super.init()
+        addChild(cardNode)
     }
 
     func flip(to card: Card) {
@@ -196,13 +232,34 @@ final class CardNode: SKSpriteNode {
 
     private func flip(to texture: SKTexture) {
         let scaleDown = SKAction.scaleX(to: 0, duration: .flipDuration / 2)
-        let flip = SKAction.run { self.texture = texture }
+        let flip = SKAction.run { self.cardNode.texture = texture }
         let scaleUp = SKAction.scaleX(to: 1, duration: .flipDuration / 2)
         run(SKAction.sequence([scaleDown, flip, scaleUp]))
     }
     
     required init?(coder aDecoder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    func makeHighlightNode() -> SKNode {
+        let pulse: [SKAction] = [
+            .group([
+                .fadeAlpha(to: .highlightStartAlpha, duration: 0),
+                .scale(to: 1, duration: 0),
+            ]),
+            .group([
+                .fadeAlpha(to: .highlightEndAlpha, duration: .highlightPulseDuration),
+                .scale(to: .highlightScale, duration: .highlightPulseDuration),
+            ]),
+        ]
+
+        let origin = CGPoint(x: -cardNode.size.width / 2, y: -cardNode.size.height / 2)
+        let roundedRect = UIBezierPath(roundedRect: CGRect(origin: origin, size: cardNode.size),
+                                       cornerRadius: .cardCornerRadius)
+        let node = SKShapeNode(path: roundedRect.cgPath)
+        node.fillColor = .highlightColor
+        node.run(.repeatForever(.sequence(pulse)))
+        return node
     }
 }
 
