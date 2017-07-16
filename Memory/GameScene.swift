@@ -9,12 +9,13 @@
 import SpriteKit
 
 private extension String {
-    static var cardBack = "cardBack"
+    static let cardBack = "cardBack"
 }
 
 private extension CGFloat {
-    static var backButtonOffset: CGFloat = 5
-    static var gridPadding: CGFloat = 20
+    static let backButtonOffset: CGFloat = 5
+    static let gridPadding: CGFloat = 20
+    static let cardTouchDownScale: CGFloat = 0.95
 }
 
 protocol GameDelegate: class {
@@ -37,7 +38,6 @@ final class GameScene: SKScene, GridDelegate {
         self.gameDelegate = gameDelegate
         
         let backButtonSprite = SKSpriteNode(imageNamed: "backButton")
-        backButtonSprite.anchorPoint = .zero
         backButton = SelectableNode(wrapping: backButtonSprite) { [weak gameDelegate] in
             gameDelegate?.goBack()
         }
@@ -96,7 +96,8 @@ final class GameScene: SKScene, GridDelegate {
                                     height: backButtonSpriteSize.height + .backButtonOffset)
         
         // Back button at top left
-        backButton.position = CGPoint(x: .backButtonOffset, y: size.height - backButtonSize.height)
+        backButton.position = CGPoint(x: .backButtonOffset + backButtonSpriteSize.width / 2,
+                                      y: size.height - .backButtonOffset - backButtonSpriteSize.height / 2)
         
         // Grid occupying center
         gridNode.position = CGPoint(x: size.width/2, y: size.height/2)
@@ -139,17 +140,24 @@ final class GridNode: SKNode {
         self.cards = SKNode()
         
         super.init()
+
+        let cardSize = CardNode.cardBackTexture.size()
+        let widthAndPadding = cardSize.width + .gridPadding
+        let halfWidthAndPAdding = cardSize.width / 2 + .gridPadding
+        let heightAndPadding = cardSize.height + .gridPadding
+        let halfHeightAndPadding = cardSize.height / 2 + .gridPadding
         
         for row in 0..<grid.rows {
             for column in 0..<grid.columns {
                 let card = CardNode()
-                card.anchorPoint = .zero
-                card.position = CGPoint(x: .gridPadding + CGFloat(column) * (card.size.width + .gridPadding),
-                                        y: .gridPadding + CGFloat(row) * (card.size.height + .gridPadding))
                 let index = row * grid.columns + column
-                let selectable = SelectableNode(wrapping: card) { [unowned self] in
+                let selectable = SelectableNode(wrapping: card, touchDownScale: .cardTouchDownScale, canSelect: {
+                    return !card.isShowing
+                }, onSelect: { [unowned self] in
                     self.delegate?.selectCard(at: index, node: card)
-                }
+                })
+                selectable.position = CGPoint(x: halfWidthAndPAdding + CGFloat(column) * widthAndPadding,
+                                              y: halfHeightAndPadding + CGFloat(row) * heightAndPadding)
                 cards.addChild(selectable)
             }
         }

@@ -9,11 +9,6 @@
 import UIKit
 import SpriteKit
 
-private extension SKTransition {
-    static let presentGame = doorsOpenHorizontal(withDuration: 0.5)
-    static let hideGame = doorsCloseHorizontal(withDuration: 0.5)
-}
-
 final class GameViewController: UIViewController {
     
     var skView: SKView {
@@ -60,5 +55,16 @@ extension GameViewController: LobbyDelegate, GameDelegate {
 
     func goBack() {
         skView.presentScene(lobby, transition: .hideGame)
+    }
+}
+
+private extension SKTransition {
+    static let presentGame = configure(doorsOpenHorizontal(withDuration: 0.5))
+    static let hideGame = configure(doorsCloseHorizontal(withDuration: 0.5))
+
+    private static func configure(_ transition: SKTransition) -> SKTransition {
+        transition.pausesIncomingScene = false
+        transition.pausesOutgoingScene = false
+        return transition
     }
 }
